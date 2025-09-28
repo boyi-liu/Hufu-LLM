@@ -14,15 +14,15 @@ class Config:
     model: str = None
 
     ### FL setting
-    client_num: int = 10
+    cn: int = 10
     sr: float = 1.0 # sample rate
     rnd: int = 10 # round
-    test_gap: int = 1
+    tg: int = 1
 
     ### local training setting
     bs: int = 64 # batch size
     epoch: int = 5
-    lr: float = 1e-2
+    lr: float = 1e-5
 
 
 def args_parser():
