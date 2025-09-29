@@ -1,0 +1,7 @@
+client_num: 10
+dir_path: gsm8k
+
+aug: False
+split: even  # even/dir/...
+
+type: ft  # ft/rag/prag
