@@ -33,8 +33,21 @@ def split_jsonl(input_file, cfg, train):
                 f.write(json.dumps(item, ensure_ascii=False) + "\n")
 
 if __name__ == "__main__":
-    with open('config.yaml', 'r') as f:
+    with open('dataset/config.yaml', 'r') as f:
         config = yaml.load(f.read(), Loader=yaml.Loader)
+
+    # with open(f'dataset/{config['dir_path']}/train.jsonl', "r", encoding="utf-8") as f:
+    #     train = [json.loads(line) for line in f]
+    # with open(f'dataset/{config['dir_path']}/test.jsonl', "r", encoding="utf-8") as f:
+    #     train = [json.loads(line) for line in f]
+    
     # TODO: process the file into dict
-    split_jsonl("gsm8k/train.jsonl", config, train=True)
-    split_jsonl("gsm8k/test.jsonl", config, train=False)
+    dataset_type = 'ft' if config['type'] == 'ft' else 'rag'
+    if dataset_type == 'ft':
+        pass
+    else:
+        augment = False if dataset_type == 'rag' else True
+        
+
+    split_jsonl(f"dataset/{dataset_type}/gsm8k/train.jsonl", config, train=True)
+    split_jsonl(f"dataset/{dataset_type}/gsm8k/test.jsonl", config, train=False)

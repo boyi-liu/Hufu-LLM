@@ -3,5 +3,6 @@ dir_path: gsm8k
 
 aug: False
 split: even  # even/dir/...
+seed: 42
 
 type: ft  # ft/rag/prag
