@@ -96,7 +96,7 @@ def get_qa(passage, model_name, model=None, tokenizer=None, generation_config=No
                 output = output[:output.find("]")+1]
         return output
 
-    try_times = 100
+    try_times = 30
     prompt = qa_prompt_template.format(passage=passage)
     output = None
     while try_times:
@@ -105,6 +105,7 @@ def get_qa(passage, model_name, model=None, tokenizer=None, generation_config=No
         try:
             qa = json.loads(output)
             ret, qa = fix_qa(qa)
+            try_times -= 1
             if ret:
                 return qa
         except:

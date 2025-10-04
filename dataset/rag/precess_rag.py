@@ -3,9 +3,10 @@ import json
 import copy
 import time
 import random
+from tqdm import tqdm
 
 from rag.augment import *
-from retrieve.retriever.retriever import bm25_retrieve
+from rag.retrieve.retriever.retriever import bm25_retrieve
 
 def process_rag(config):
     """
@@ -27,19 +28,20 @@ def process_rag(config):
     """
 
     ## Load data and sample Q&A
-    with open(f'{config['dir_path']}/train.jsonl', "r", encoding="utf-8") as f:
+    with open(f"{config['dir_path']}/train.jsonl", "r", encoding="utf-8") as f:
         train = [json.loads(line) for line in f]
-    with open(f'{config['dir_path']}/test.jsonl', "r", encoding="utf-8") as f:
+    with open(f"{config['dir_path']}/test.jsonl", "r", encoding="utf-8") as f:
         test = [json.loads(line) for line in f]
     total_qa = train + test
     random.seed(config['seed'])
     qas = random.sample(total_qa, config['rag']['samples'])
+    print(f"Total number of questions: {len(total_qa)}")
 
     ## Retrieve relevant documents for each question as client corpus
     docs = []
-    for qa in qas:
+    for qa in tqdm(qas, total=len(qas)):
         docs.extend(bm25_retrieve(qa['question'], config['rag']['topk']))
-        docs = [{"id": i, "document": docs[i]} for i in range(len(docs))]
+    docs = [{"id": i, "document": docs[i]} for i in range(len(docs))]
 
     ## Save data
     save_dir = f'{config["dir_path"]}/rag'
@@ -66,7 +68,7 @@ def process_rag(config):
 
             begin_time = time.time()
             aug = copy.deepcopy(doc)
-            aug[f"{augment_model}_rewrite"] = get_rewrite(doc['document'], model, tokenizer, generation_config)
+            aug[f"{augment_model}_rewrite"] = get_rewrite(doc['document'], augment_model, model, tokenizer, generation_config)
             qa = get_qa(doc['document'], augment_model, model, tokenizer, generation_config)
             if fix_qa(qa)[0] != False: 
                 aug[f"{augment_model}_qa"] = qa
