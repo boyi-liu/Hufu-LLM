@@ -1,0 +1,9 @@
+# TODO: Add version to pip library
+torch
+numpy
+yaml
+scipy
+matplotlib
+tqdm
+os
+json
