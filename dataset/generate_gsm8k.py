@@ -1,6 +1,7 @@
 import json
 import yaml
 
+from dataset.rag.precess_rag import process_rag
 from ft.utils import split_dataset
 
 if __name__ == "__main__":
