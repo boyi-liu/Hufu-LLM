@@ -4,7 +4,7 @@ from utils.time_utils import time_record
 class Client(FTBaseClient):
     @time_record
     def run(self, model):
-        self.run(model)
+        return super().run(model)
 
 class Server(FTBaseServer):
     def run(self):
