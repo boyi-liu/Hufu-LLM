@@ -1,4 +1,4 @@
-import importlib
+import importlib.util
 import sys
 import numpy as np
 import os
@@ -6,7 +6,7 @@ import os
 from utils.options import args_parser
 from tqdm import tqdm
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 class FedSim:
     def __init__(self, args):
@@ -19,10 +19,10 @@ class FedSim:
         self.output = open(f'./{output_path}.txt', 'a')
 
         # === route to algorithm module ===
-        ft_module = importlib.import_module(f'alg.fedft')
-        rag_module = importlib.import_module(f'alg.fedrag')
-        assert hasattr(ft_module, args.alg) or hasattr(rag_module, args.alg)
-        alg_module = getattr(ft_module, args.alg) if hasattr(ft_module, args.alg) else getattr(rag_module, args.alg)
+        if importlib.util.find_spec(f'alg.fedft.{args.alg}'):
+            alg_module = importlib.import_module(f'alg.fedft.{args.alg}')
+        else:
+            alg_module = importlib.import_module(f'alg.fedrag.{args.alg}')
 
         # === init clients & server ===
         self.clients = [alg_module.Client(idx, args) for idx in tqdm(range(args.cn), desc="Loading clients...")]

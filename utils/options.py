@@ -1,7 +1,9 @@
 import argparse
-import importlib
+import importlib.util
 import yaml
+
 from dataclasses import dataclass
+
 
 @dataclass
 class Config:
@@ -43,7 +45,10 @@ def args_parser():
     args, _ = parser.parse_known_args()
 
     # === read specific args from each method
-    alg_module = importlib.import_module(f'alg.fedft.{args.alg}')
+    if importlib.util.find_spec(f'alg.fedft.{args.alg}'):
+        alg_module = importlib.import_module(f'alg.fedft.{args.alg}')
+    else:
+        alg_module = importlib.import_module(f'alg.fedrag.{args.alg}')
 
     spec_args = alg_module.add_args(parser) if hasattr(alg_module, 'add_args') else args
     return spec_args
