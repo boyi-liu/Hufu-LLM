@@ -9,9 +9,9 @@ class Config:
 
     ### basic setting
     suffix: str = 'default'
-    device: int = None
-    dataset: str = None
-    model: str = None
+    device: int = 0
+    dataset: str = ''
+    model: str = ''
 
     ### FL setting
     cn: int = 10
@@ -23,6 +23,8 @@ class Config:
     bs: int = 64 # batch size
     epoch: int = 5
     lr: float = 1e-5
+
+    test_gap: int = 1
 
 
 def args_parser():
@@ -41,6 +43,7 @@ def args_parser():
     args, _ = parser.parse_known_args()
 
     # === read specific args from each method
-    alg_module = importlib.import_module(f'alg.{args.alg}')
+    alg_module = importlib.import_module(f'alg.fedft.{args.alg}')
+
     spec_args = alg_module.add_args(parser) if hasattr(alg_module, 'add_args') else args
     return spec_args

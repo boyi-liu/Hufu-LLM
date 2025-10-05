@@ -15,7 +15,7 @@ class FedSim:
         os.makedirs(f'./{args.suffix}', exist_ok=True)
 
         output_path = f'{args.suffix}/{args.alg}_{args.dataset}_{args.model}_' \
-                      f'{args.client_num}c_{args.epoch}E_lr{args.lr}'
+                      f'{args.cn}c_{args.epoch}E_lr{args.lr}'
         self.output = open(f'./{output_path}.txt', 'a')
 
         # === route to algorithm module ===
@@ -25,21 +25,21 @@ class FedSim:
         alg_module = getattr(ft_module, args.alg) if hasattr(ft_module, args.alg) else getattr(rag_module, args.alg)
 
         # === init clients & server ===
-        self.clients = [alg_module.Client(idx, args) for idx in tqdm(range(args.client_num))]
-        self.server = alg_module.Server(-1, args, self.clients)
+        self.clients = [alg_module.Client(idx, args) for idx in tqdm(range(args.cn), desc="Loading clients...")]
+        self.server = alg_module.Server(args, self.clients)
 
     def simulate(self):
         acc_list = []
         TEST_GAP = self.args.test_gap
 
         try:
-            for rnd in tqdm(range(0, self.server.total_round), desc='Communication Round', leave=False):
+            for rnd in tqdm(range(0, self.args.rnd), desc='Communication round', leave=False):
                 # ===================== train =====================
                 self.server.round = rnd
                 self.server.run()
 
                 # ===================== test =====================
-                if (self.server.total_round - rnd <= 10) or (rnd % TEST_GAP == (TEST_GAP-1)):
+                if (self.args.rnd - rnd <= 10) or (rnd % TEST_GAP == (TEST_GAP-1)):
                     ret_dict = self.server.test_all()
                     acc = ret_dict['acc']
                     acc_list.append(acc)

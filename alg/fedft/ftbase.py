@@ -2,7 +2,6 @@ import copy
 import os
 
 from transformers import TrainingArguments, Trainer
-
 from alg.base import BaseClient, BaseServer
 from datasets import load_dataset
 from utils.model_utils import load_model
@@ -30,31 +29,25 @@ class FTBaseClient(BaseClient):
         train_dir = os.path.join('./dataset', self.args.dataset, f'train/{self.id}.json')
         test_dir = os.path.join('./dataset', self.args.dataset, f'test/{self.id}.json')
 
-        self.dataset_train = load_dataset("json", data_files=train_dir)
-        self.dataset_test = load_dataset("json", data_files=test_dir)
+        self.dataset = load_dataset("json", data_files={'train': train_dir, 'test': test_dir})
+        self.dataset['train'] = self.dataset['train'].map(self.format_example)
 
     def format_example(self, example):
         prompt = f"Instruct: {example['question']}\nAnswer:"
         return {
-            "input_ids":
-                self.tokenizer(prompt, return_tensors="pt", truncation=True, padding="max_length",
-                               max_length=512).input_ids[0],
-            "labels": self.tokenizer(example["answer"], return_tensors="pt", truncation=True, padding="max_length",
-                                     max_length=512).input_ids[0]
+            "input_ids": self.tokenizer(prompt, return_tensors="pt", truncation=True, padding="max_length", max_length=512).input_ids[0],
+            "labels": self.tokenizer(example["answer"], return_tensors="pt", truncation=True, padding="max_length", max_length=512).input_ids[0]
         }
 
     def run(self, model):
-        tokenized_dataset = self.dataset_train.map(self.format_example)
         client_model = copy.deepcopy(model)
 
-        trainer = Trainer(
+        Trainer(
             model=client_model,
             args=self.training_args,
-            train_dataset=tokenized_dataset["train"],
-            tokenizer=self.tokenizer,
-        )
-
-        trainer.train()
+            train_dataset=self.dataset['train'],
+            processing_class=self.tokenizer,
+        ).train()
         return {k: v for k, v in client_model.state_dict().items() if "lora_" in k}
 
     def local_test(self):
