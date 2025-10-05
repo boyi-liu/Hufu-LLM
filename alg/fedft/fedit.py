@@ -3,13 +3,11 @@ from utils.time_utils import time_record
 
 class Client(FTBaseClient):
     @time_record
-    def run(self):
-        self.run()
+    def run(self, model):
+        self.run(model)
 
 class Server(FTBaseServer):
     def run(self):
         self.sample()
-        self.downlink()
         self.local_run()
-        self.uplink()
         self.aggregate()
