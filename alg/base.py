@@ -1,4 +1,6 @@
-class BaseClient:
+from abc import ABC, abstractmethod
+
+class BaseClient(ABC):
     def __init__(self, id, args):
         self.id = id
         self.args = args
@@ -6,46 +8,40 @@ class BaseClient:
         self.dataset_test = None
         self.server = None
 
+    @abstractmethod
     def load_data(self):
         pass
 
-    def run(self):
-        raise NotImplementedError
+    @abstractmethod
+    def run(self, model):
+        pass
 
+    @abstractmethod
     def local_test(self):
-        raise NotImplementedError
+        pass
 
 
-class BaseServer(BaseClient):
-    def __init__(self, id, args, clients):
-        super().__init__(id, args)
-        self.id = id
+class BaseServer(ABC):
+    def __init__(self, args, clients):
         self.args = args
         self.clients = clients
 
-        self.round = 0
-
+    @abstractmethod
     def run(self):
-        self.sample()
-        self.downlink()
-        self.local_run()
-        self.uplink()
-        self.aggregate()
+        pass
 
+    @abstractmethod
     def sample(self):
-        raise NotImplementedError
+        pass
 
-    def downlink(self):
-        raise NotImplementedError
-
+    @abstractmethod
     def local_run(self):
-        raise NotImplementedError
+        pass
 
-    def uplink(self):
-        raise NotImplementedError
-
+    @abstractmethod
     def aggregate(self):
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     def test_all(self):
-        raise NotImplementedError
+        pass
